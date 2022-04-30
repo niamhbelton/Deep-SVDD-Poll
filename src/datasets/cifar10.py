@@ -9,13 +9,14 @@ import torchvision.transforms as transforms
 
 class CIFAR10_Dataset(TorchvisionDataset):
 
-    def __init__(self, root: str, normal_class=5):
+    def __init__(self, root: str, pollution, normal_class=5):
         super().__init__(root)
 
         self.n_classes = 2  # 0: normal, 1: outlier
         self.normal_classes = tuple([normal_class])
         self.outlier_classes = list(range(0, 10))
         self.outlier_classes.remove(normal_class)
+        self.pollution = pollution
 
         # Pre-computed min and max values (after applying GCN) from train data per class
         min_max = [(-28.94083453598571, 13.802961825439636),
@@ -39,8 +40,9 @@ class CIFAR10_Dataset(TorchvisionDataset):
 
         train_set = MyCIFAR10(root=self.root, train=True, download=True,
                               transform=transform, target_transform=target_transform)
+      #  print(vars(train_set))
         # Subset train set to normal class
-        train_idx_normal = get_target_label_idx(train_set.train_labels, self.normal_classes)
+        train_idx_normal = get_target_label_idx(train_set.targets, self.normal_classes, self.pollution)
         self.train_set = Subset(train_set, train_idx_normal)
 
         self.test_set = MyCIFAR10(root=self.root, train=False, download=True,
@@ -61,9 +63,9 @@ class MyCIFAR10(CIFAR10):
             triple: (image, target, index) where target is index of the target class.
         """
         if self.train:
-            img, target = self.train_data[index], self.train_labels[index]
+            img, target = self.data[index], self.targets[index]
         else:
-            img, target = self.test_data[index], self.test_labels[index]
+            img, target = self.data[index], self.targets[index]
 
         # doing this so that it is consistent with all other datasets
         # to return a PIL Image
