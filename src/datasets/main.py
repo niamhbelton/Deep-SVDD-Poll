@@ -11,7 +11,7 @@ def load_dataset(dataset_name, data_path, pollution, N, normal_class):
     dataset = None
 
     if dataset_name == 'mnist':
-        dataset = MNIST_Dataset(root=data_path, pollution = pollution, normal_class=normal_class)
+        dataset = MNIST_Dataset(root=data_path, pollution = pollution, N=N,normal_class=normal_class)
 
     if dataset_name == 'cifar10':
         dataset = CIFAR10_Dataset(root=data_path, pollution = pollution, N=N, normal_class=normal_class)
