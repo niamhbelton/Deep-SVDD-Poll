@@ -3,13 +3,14 @@ from PIL import Image
 from torchvision.datasets import CIFAR10
 from base.torchvision_dataset import TorchvisionDataset
 from .preprocessing import get_target_label_idx, global_contrast_normalization
-
+import numpy as np
+import random
 import torchvision.transforms as transforms
 
 
 class CIFAR10_Dataset(TorchvisionDataset):
 
-    def __init__(self, root: str, pollution, normal_class=5):
+    def __init__(self, root: str, pollution, N, normal_class=5):
         super().__init__(root)
 
         self.n_classes = 2  # 0: normal, 1: outlier
@@ -17,6 +18,7 @@ class CIFAR10_Dataset(TorchvisionDataset):
         self.outlier_classes = list(range(0, 10))
         self.outlier_classes.remove(normal_class)
         self.pollution = pollution
+        self.N = N
 
         # Pre-computed min and max values (after applying GCN) from train data per class
         min_max = [(-28.94083453598571, 13.802961825439636),
@@ -43,6 +45,10 @@ class CIFAR10_Dataset(TorchvisionDataset):
       #  print(vars(train_set))
         # Subset train set to normal class
         train_idx_normal = get_target_label_idx(train_set.targets, self.normal_classes, self.pollution)
+        if N > 0:
+          np.random.seed(1)
+          ind = random.sample(range(0, len(train_idx_normal)), self.N)
+          train_idx_normal=np.array(train_idx_normal)[ind]
         self.train_set = Subset(train_set, train_idx_normal)
 
         self.test_set = MyCIFAR10(root=self.root, train=False, download=True,

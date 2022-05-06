@@ -19,6 +19,7 @@ from datasets.main import load_dataset
 @click.argument('xp_path', type=click.Path(exists=True))
 @click.argument('data_path', type=click.Path(exists=True))
 @click.option('--pollution', default=0.0)
+@click.option('--n', default=0)
 @click.option('--load_config', type=click.Path(exists=True), default=None,
               help='Config JSON-file path (default: None).')
 @click.option('--load_model', type=click.Path(exists=True), default=None,
@@ -54,7 +55,7 @@ from datasets.main import load_dataset
               help='Number of workers for data loading. 0 means that the data will be loaded in the main process.')
 @click.option('--normal_class', type=int, default=0,
               help='Specify the normal class of the dataset (all other classes are considered anomalous).')
-def main(dataset_name, net_name, xp_path, data_path, pollution, load_config, load_model, objective, nu, device, seed,
+def main(dataset_name, net_name, xp_path, data_path, pollution, n, load_config, load_model, objective, nu, device, seed,
          optimizer_name, lr, n_epochs, lr_milestone, batch_size, weight_decay, pretrain, ae_optimizer_name, ae_lr,
          ae_n_epochs, ae_lr_milestone, ae_batch_size, ae_weight_decay, n_jobs_dataloader, normal_class):
     """
@@ -112,7 +113,7 @@ def main(dataset_name, net_name, xp_path, data_path, pollution, load_config, loa
     logger.info('Number of dataloader workers: %d' % n_jobs_dataloader)
 
     # Load data
-    dataset = load_dataset(dataset_name, data_path, pollution, normal_class)
+    dataset = load_dataset(dataset_name, data_path, pollution,n, normal_class)
 
     # Initialize DeepSVDD model and set neural network \phi
     deep_SVDD = DeepSVDD(cfg.settings['objective'], cfg.settings['nu'])
