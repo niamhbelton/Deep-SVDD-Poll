@@ -3,7 +3,8 @@ from base.base_dataset import BaseADDataset
 from base.base_net import BaseNet
 from torch.utils.data.dataloader import DataLoader
 from sklearn.metrics import roc_auc_score
-
+from sklearn.metrics import roc_auc_score, precision_recall_fscore_support
+import pandas as pd
 import logging
 import time
 import torch
@@ -154,11 +155,14 @@ class DeepSVDDTrainer(BaseTrainer):
         prec, recall, test_metric, _ = precision_recall_fscore_support(
             labels, y_pred, average="binary")
 
-        print('F1 is {}'.format(test_metric))
+        df=pd.concat([pd.DataFrame(scores), pd.DataFrame(labels), pd.DataFrame(y_pred)], axis =1)
+        df.columns = ['output', 'label', 'pred']
+        print('AUC is {}'.format(roc_auc_score(labels, scores)))
         print('prec is {}'.format(prec))
         print('recall is {}'.format(recall))
+        df.to_csv('data.csv')
 
-        
+
         logger.info('Test set AUC: {:.2f}%'.format(100. * self.test_auc))
 
         logger.info('Finished testing.')
