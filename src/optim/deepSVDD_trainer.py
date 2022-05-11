@@ -149,6 +149,16 @@ class DeepSVDDTrainer(BaseTrainer):
         scores = np.array(scores)
 
         self.test_auc = roc_auc_score(labels, scores)
+        thresh = np.percentile(scores, 10)
+        y_pred = np.where(scores >= thresh, 1, 0)
+        prec, recall, test_metric, _ = precision_recall_fscore_support(
+            labels, y_pred, average="binary")
+
+        print('F1 is {}'.format(test_metric))
+        print('prec is {}'.format(prec))
+        print('recall is {}'.format(recall))
+
+        
         logger.info('Test set AUC: {:.2f}%'.format(100. * self.test_auc))
 
         logger.info('Finished testing.')
