@@ -155,6 +155,8 @@ class DeepSVDDTrainer(BaseTrainer):
         prec, recall, test_metric, _ = precision_recall_fscore_support(
             labels, y_pred, average="binary")
 
+        self.test_f1 = test_metric
+
         df=pd.concat([pd.DataFrame(scores), pd.DataFrame(labels), pd.DataFrame(y_pred)], axis =1)
         df.columns = ['output', 'label', 'pred']
         print('AUC is {}'.format(roc_auc_score(labels, scores)))
@@ -164,6 +166,7 @@ class DeepSVDDTrainer(BaseTrainer):
 
 
         logger.info('Test set AUC: {:.2f}%'.format(100. * self.test_auc))
+        logger.info('Test set F1: {:.2f}%'.format(100. * self.test_f1))
 
         logger.info('Finished testing.')
 
